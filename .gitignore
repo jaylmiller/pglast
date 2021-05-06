@@ -11,3 +11,5 @@
 /emacs.desktop
 /env/
 __pycache__/
+venv
+.idea

@@ -18,6 +18,17 @@ def test_bad_base_construction():
     pytest.raises(ValueError, Base, set())
 
 
+def test_setitem_updates_sql():
+    root = Node(parse_sql("SELECT 1 FROM asdf"))
+    for i in root.traverse():
+        if hasattr(i, 'attribute_names'):
+            if i.node_tag == 'RangeVar':
+                i['relname'] = 'qwer'
+            if i.node_tag == 'Integer':
+                i['val'] = 2
+    expected_ast = Node(parse_sql("select 2 from qwer"))
+    assert root == expected_ast
+
 def test_basic():
     root = Node(parse_sql('SELECT 1'))
     assert root.parent_node is None

@@ -127,6 +127,10 @@ class List(Base):
         pivot = self[0]
         return '[%d*%r]' % (count, pivot)
 
+    def to_sql(self):
+        from .printer import IndentedStream
+        return IndentedStream()(List(self._items))
+
     def __iter__(self):
         pnode = self.parent_node
         aname = self.parent_attribute
@@ -207,6 +211,16 @@ class Node(Base):
             value = getattr(node, attr)
             if value is not None:
                 yield Base(value, self, attr)
+
+    def to_sql(self):
+        from .printer import IndentedStream
+        return IndentedStream()(Node(self.ast_node))
+
+    def __setitem__(self, key, value):
+        item = self.__getitem__(key)
+        if not isinstance(item, Scalar):
+            raise ValueError('can only set scalars')
+        setattr(self.ast_node, key, value)
 
     def __eq__(self, other):
         cls = type(self)
