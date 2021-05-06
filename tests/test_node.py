@@ -18,7 +18,7 @@ def test_bad_base_construction():
     pytest.raises(ValueError, Base, set())
 
 
-def test_setitem_updates_sql():
+def test_setitem_scalar():
     root = Node(parse_sql("SELECT 1 FROM asdf"))
     for i in root.traverse():
         if hasattr(i, 'attribute_names'):
@@ -28,6 +28,33 @@ def test_setitem_updates_sql():
                 i['val'] = 2
     expected_ast = Node(parse_sql("select 2 from qwer"))
     assert root == expected_ast
+
+def test_setitem_list():
+    root = Node(parse_sql("select asdf from qwer join fff on qwer.id = fff.id"))
+    root2 = Node(parse_sql('select 1 from asdf'))
+    targetlist = None
+    for n in root2.traverse():
+        if hasattr(n, "attribute_names"):
+            if 'targetList' in n.attribute_names:
+                targetlist = n['targetList']
+    for n in root.traverse():
+        if hasattr(n, "attribute_names"):
+            print(n.attribute_names)
+            if 'targetList' in n.attribute_names:
+                n['targetList'] = targetlist
+    assert root == Node(parse_sql("select 1 from qwer join fff on qwer.id = fff.id"))
+
+def test_setitem_node():
+    root = Node(parse_sql("select asdf from qwer join (select generate_series(1,10) s) ss on qwer.a = ss.b "))  # noqa
+    root2 = Node(parse_sql('select 1 from asdf'))
+    select = root2[0]['stmt']
+
+    for n in root.traverse():
+        if hasattr(n, 'attribute_names') and 'subquery' in n.attribute_names:
+            n['subquery'] = select
+
+    assert root == Node(parse_sql("select asdf from qwer join (select 1 from asdf) ss on qwer.a = ss.b "))
+
 
 def test_to_sql():
     root = Node(parse_sql("SELECT 1 FROM asdf"))

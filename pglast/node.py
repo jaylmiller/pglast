@@ -222,9 +222,14 @@ class Node(Base):
 
     def __setitem__(self, key, value):
         item = self.__getitem__(key)
-        if not isinstance(item, Scalar):
-            raise ValueError('can only set scalars')
-        setattr(self.ast_node, key, value)
+        if isinstance(item, (List, Node)) and not isinstance(value, (List, Node)):
+            raise ValueError('List/Node must be replaced by another List/Node')
+        if isinstance(item, List):
+            setattr(self.ast_node, key, value._items)
+        elif isinstance(item, Node):
+            setattr(self.ast_node, key, value.ast_node)
+        else:
+            setattr(self.ast_node, key, value)
 
     def __eq__(self, other):
         cls = type(self)
