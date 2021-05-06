@@ -31,8 +31,8 @@ def test_setitem_updates_sql():
 
 def test_to_sql():
     root = Node(parse_sql("SELECT 1 FROM asdf"))
-    root.to_sql()
-
+    out = root.to_sql()
+    assert out == "\n".join(["SELECT 1", "FROM asdf"])
 
 def test_basic():
     root = Node(parse_sql('SELECT 1'))
