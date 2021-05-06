@@ -29,6 +29,11 @@ def test_setitem_updates_sql():
     expected_ast = Node(parse_sql("select 2 from qwer"))
     assert root == expected_ast
 
+def test_to_sql():
+    root = Node(parse_sql("SELECT 1 FROM asdf"))
+    root.to_sql()
+
+
 def test_basic():
     root = Node(parse_sql('SELECT 1'))
     assert root.parent_node is None

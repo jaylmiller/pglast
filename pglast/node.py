@@ -129,6 +129,8 @@ class List(Base):
 
     def to_sql(self):
         from .printer import IndentedStream
+        from . import printers # noqa
+
         return IndentedStream()(List(self._items))
 
     def __iter__(self):
@@ -214,6 +216,8 @@ class Node(Base):
 
     def to_sql(self):
         from .printer import IndentedStream
+        from . import printers  # noqa
+
         return IndentedStream()(Node(self.ast_node))
 
     def __setitem__(self, key, value):
